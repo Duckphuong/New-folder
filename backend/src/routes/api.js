@@ -16,6 +16,7 @@ const {
     postCancel,
     updateUser,
     getViolateAll,
+    getDuration,
 } = require('../controllers/userController');
 const delay = require('../middleware/delay');
 const auth = require('../middleware/auth');
@@ -71,5 +72,7 @@ routerAPI.get('/historyall', getHistoryAll);
 routerAPI.get('/violate', getViolateAll);
 
 routerAPI.post('/history/:TicketID', postCancel);
+
+routerAPI.post('/booking-duration', getDuration);
 
 module.exports = routerAPI; //export default

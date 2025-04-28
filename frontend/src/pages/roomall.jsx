@@ -1,7 +1,15 @@
 import { useEffect, useState } from 'react';
-import { Card, Modal, notification, Button, Input } from 'antd';
+import {
+    Card,
+    Modal,
+    notification,
+    Button,
+    Input,
+    Table,
+    DatePicker,
+    Select,
+} from 'antd';
 import React from 'react';
-import { Table, Tag, Badge } from 'antd';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { useNavigate } from 'react-router-dom';
@@ -9,6 +17,7 @@ import { getAllRoomsApi } from '../util/api';
 import axios from '../util/axios.customize';
 
 dayjs.extend(utc);
+
 const RoomAll = () => {
     const navigate = useNavigate();
     const [isEditing, setIsEditing] = useState(false);
@@ -18,13 +27,19 @@ const RoomAll = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const authData = JSON.parse(localStorage.getItem('authData'));
 
+    // New: state cho tính tổng thời gian
+    const [isDurationModalVisible, setIsDurationModalVisible] = useState(false);
+    const [durationRoomID, setDurationRoomID] = useState('');
+    const [durationStartDate, setDurationStartDate] = useState('');
+    const [durationEndDate, setDurationEndDate] = useState('');
+    const [durationResultList, setDurationResultList] = useState([]);
+
     useEffect(() => {
         const fetchDetail = async () => {
             const res = await getAllRoomsApi();
             if (res.redirect) {
                 navigate(res.redirect);
             }
-            console.log('check res', res);
             if (!res?.message) {
                 setDataSource(res);
             } else {
@@ -53,13 +68,13 @@ const RoomAll = () => {
         if (authData.user.role !== 'admin') {
             notification.error({
                 message: 'Không có quyền',
-                description: 'Bạn không có quyền xóa người dùng!',
+                description: 'Bạn không có quyền xóa phòng!',
             });
             return;
         }
         Modal.confirm({
             title: 'Xác nhận xóa',
-            content: `Bạn có chắc chắn muốn xóa ${selectedRow.email}?`,
+            content: `Bạn có chắc chắn muốn xóa ${selectedRow.RoomID}?`,
             okText: 'Xóa',
             okType: 'danger',
             cancelText: 'Hủy',
@@ -71,13 +86,13 @@ const RoomAll = () => {
                     );
                     notification.success({
                         message: 'Xóa thành công',
-                        description: `Phòng  ${selectedRow.RoomID} đã bị xóa.`,
+                        description: `Phòng ${selectedRow.RoomID} đã bị xóa.`,
                     });
                     handleClose();
                 } catch (error) {
                     notification.error({
                         message: 'Lỗi',
-                        description: 'Không thể xóa người dùng!',
+                        description: 'Không thể xóa phòng!',
                     });
                 }
             },
@@ -97,6 +112,40 @@ const RoomAll = () => {
         } catch (error) {
             notification.error({
                 message: 'Cập nhật thất bại',
+            });
+        }
+    };
+
+    // New: handle tính tổng thời gian
+    const handleCalculateDuration = async () => {
+        if (!durationStartDate || !durationEndDate) {
+            notification.warning({
+                message: 'Vui lòng nhập ngày bắt đầu và kết thúc',
+            });
+            return;
+        }
+
+        try {
+            const res = await axios.post(`/v1/api/booking-duration`, {
+                params: {
+                    startDate: durationStartDate,
+                    endDate: durationEndDate,
+                    roomId: durationRoomID || undefined,
+                },
+            });
+            if (!res.data || res.data.length === 0) {
+                console.log('test lenght', durationRoomID);
+
+                setDurationResultList([
+                    { RoomID: durationRoomID, totalDuration: 0 },
+                ]);
+            } else {
+                setDurationResultList(res.data);
+            }
+        } catch (error) {
+            notification.error({
+                message: 'Lỗi khi tính tổng thời gian',
+                description: error.response?.data?.message || 'Có lỗi xảy ra!',
             });
         }
     };
@@ -132,39 +181,18 @@ const RoomAll = () => {
             title: 'Loại phòng',
             dataIndex: 'RoomType',
             key: 'RoomType',
-            filters: Array.from(
-                new Set(dataSource.map((item) => item.RoomType))
-            ).map((room) => ({
-                text: room,
-                value: room,
-            })),
-            onFilter: (value, record) => record.RoomType === value,
             sorter: (a, b) => a.RoomType.localeCompare(b.RoomType),
         },
         {
             title: 'Thời gian tối đa',
             dataIndex: 'TimeLimit',
             key: 'TimeLimit',
-            filters: Array.from(
-                new Set(dataSource.map((item) => item.TimeLimit))
-            ).map((TimeLimit) => ({
-                text: TimeLimit,
-                value: TimeLimit,
-            })),
-            onFilter: (value, record) => record.TimeLimit === value,
             sorter: (a, b) => a.TimeLimit.localeCompare(b.TimeLimit),
         },
         {
             title: 'CCCD',
             dataIndex: 'CCCD',
             key: 'CCCD',
-            filters: Array.from(
-                new Set(dataSource.map((item) => item.CCCD))
-            ).map((cccd) => ({
-                text: cccd,
-                value: cccd,
-            })),
-            onFilter: (value, record) => record.CCCD === value,
             sorter: (a, b) => a.CCCD.localeCompare(b.CCCD),
         },
         {
@@ -172,33 +200,27 @@ const RoomAll = () => {
             dataIndex: 'RoomCapacity',
             key: 'RoomCapacity',
             render: (text) => (text === null ? 1 : text),
-            filters: Array.from(
-                new Set(
-                    dataSource.map((item) =>
-                        item.RoomCapacity === null ? 1 : item.RoomCapacity
-                    )
-                )
-            ).map((RoomCapacity) => ({
-                text: RoomCapacity === null ? '1' : RoomCapacity,
-                value: RoomCapacity,
-            })),
-            onFilter: (value, record) =>
-                (record.RoomCapacity === null ? 1 : record.RoomCapacity) ===
-                value,
-            sorter: (a, b) =>
-                (a.RoomCapacity === null ? 1 : a.RoomCapacity).localeCompare(
-                    b.RoomCapacity === null ? 1 : b.RoomCapacity
-                ),
+            sorter: (a, b) => (a.RoomCapacity ?? 1) - (b.RoomCapacity ?? 1),
         },
     ];
 
     return (
         <div className="p-4">
             <h2 className="text-xl font-semibold mb-4">Quản lí phòng</h2>
+
+            {/* New: nút tính tổng thời gian */}
+            <Button
+                type="primary"
+                className="mb-4"
+                onClick={() => setIsDurationModalVisible(true)}
+            >
+                Tính tổng thời gian đặt phòng
+            </Button>
+
             <Table
                 columns={columns}
                 dataSource={dataSource}
-                rowKey="TicketIDNum"
+                rowKey="RoomID"
                 bordered
                 pagination={{
                     pageSizeOptions: ['10', '20', `${dataSource.length}`],
@@ -211,6 +233,8 @@ const RoomAll = () => {
                     onClick: () => showModal(record),
                 })}
             />
+
+            {/* Modal chi tiết phòng */}
             <Modal
                 title={`Chi tiết phòng ${selectedRow?.RoomID} - ${selectedRow?.RoomName}`}
                 open={isModalVisible}
@@ -247,104 +271,106 @@ const RoomAll = () => {
                 {selectedRow && (
                     <div className="space-y-2">
                         <div>
-                            <b>ID phòng:</b>
-                            {isEditing ? (
-                                <Input
-                                    value={formData.RoomID}
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            RoomID: e.target.value,
-                                        })
-                                    }
-                                />
-                            ) : (
-                                <p>{formData.RoomID}</p>
-                            )}
-                        </div>
-
-                        <div>
-                            <b>Tên phòng:</b>
-                            {isEditing ? (
-                                <Input
-                                    value={formData.RoomName}
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            RoomName: e.target.value,
-                                        })
-                                    }
-                                />
-                            ) : (
-                                <p>{formData.RoomName}</p>
-                            )}
+                            <b>ID phòng:</b> {formData.RoomID}
                         </div>
                         <div>
-                            <b>Thời lượng:</b>
-                            {isEditing ? (
-                                <Input
-                                    value={formData.TimeLimit}
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            TimeLimit: e.target.value,
-                                        })
-                                    }
-                                />
-                            ) : (
-                                <p>{formData.TimeLimit}</p>
-                            )}
-                        </div>
-                        {/* <div>
-                            <b>Thiết bị:</b>{' '}
-                            {isEditing ? (
-                                <Input
-                                    value={formData.HasProjector}
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            HasProjector: e.target.value,
-                                        })
-                                    }
-                                />
-                            ) : (
-                                <p>{formData.HasProjector}</p>
-                            )}
-                        </div> */}
-                        <div>
-                            <b>Sức chứa:</b>
-                            {isEditing ? (
-                                <Input
-                                    value={formData.RoomCapacity}
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            RoomCapacity: e.target.value,
-                                        })
-                                    }
-                                />
-                            ) : (
-                                <p>{formData.RoomCapacity}</p>
-                            )}
+                            <b>Tên phòng:</b> {formData.RoomName}
                         </div>
                         <div>
-                            <b>CCCD quản lí:</b>
-                            {isEditing ? (
-                                <Input
-                                    value={formData.CCCD}
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            TimeCCCDLimit: e.target.value,
-                                        })
-                                    }
-                                />
-                            ) : (
-                                <p>{formData.CCCD}</p>
-                            )}
+                            <b>Thời lượng:</b> {formData.TimeLimit}
+                        </div>
+                        <div>
+                            <b>Sức chứa:</b> {formData.RoomCapacity ?? 1}
+                        </div>
+                        <div>
+                            <b>CCCD quản lí:</b> {formData.CCCD}
                         </div>
                     </div>
                 )}
+            </Modal>
+
+            {/* Modal tính tổng thời gian */}
+            <Modal
+                title="Tính tổng thời gian đặt phòng"
+                open={isDurationModalVisible}
+                onCancel={() => {
+                    setIsDurationModalVisible(false);
+                    setDurationStartDate('');
+                    setDurationEndDate('');
+                    setDurationRoomID('');
+                    setDurationResultList([]);
+                }}
+                onOk={handleCalculateDuration}
+                width={800}
+            >
+                <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <Select
+                            placeholder="Chọn RoomID (bỏ trống để tính tất cả)"
+                            value={durationRoomID}
+                            onChange={(value) => setDurationRoomID(value)}
+                            style={{ width: '100%' }}
+                        >
+                            <Select.Option value="">Tất cả phòng</Select.Option>
+                            {dataSource.map((room) => (
+                                <Select.Option
+                                    key={room.RoomID}
+                                    value={room.RoomID}
+                                >
+                                    {room.RoomID}
+                                </Select.Option>
+                            ))}
+                        </Select>
+                        <DatePicker
+                            placeholder="Ngày bắt đầu"
+                            style={{ width: '100%' }}
+                            value={
+                                durationStartDate
+                                    ? dayjs(durationStartDate)
+                                    : null
+                            }
+                            onChange={(date) => {
+                                setDurationStartDate(
+                                    date ? date.format('YYYY-MM-DD') : ''
+                                );
+                            }}
+                        />
+                        <DatePicker
+                            placeholder="Ngày kết thúc"
+                            style={{ width: '100%' }}
+                            value={
+                                durationEndDate ? dayjs(durationEndDate) : null
+                            }
+                            onChange={(date) => {
+                                setDurationEndDate(
+                                    date ? date.format('YYYY-MM-DD') : ''
+                                );
+                            }}
+                        />
+                    </div>
+
+                    {durationResultList.length > 0 && (
+                        <Table
+                            dataSource={durationResultList}
+                            columns={[
+                                {
+                                    title: 'Phòng',
+                                    dataIndex: 'RoomID',
+                                    key: 'RoomID',
+                                },
+                                {
+                                    title: 'Tổng thời gian đặt',
+                                    dataIndex: 'totalDuration',
+                                    key: 'totalDuration',
+                                },
+                            ]}
+                            rowKey="RoomID"
+                            bordered
+                            pagination={false}
+                            className="mt-4"
+                        />
+                    )}
+                </div>
             </Modal>
         </div>
     );

@@ -239,5 +239,25 @@ const User = {
                `);
         return res;
     },
+
+    getDuration: async (startDate, endDate, roomId) => {
+        let sqlQuery = `
+            SELECT RoomID, SUM(Duration) AS totalDuration
+            FROM PHIEU_MUON
+            WHERE Borrowed_Date BETWEEN ? AND ?
+        `;
+        const params = [startDate, endDate];
+        console.log('params', params);
+        if (roomId) {
+            sqlQuery += ` AND RoomID = ?`;
+            params.push(roomId);
+        }
+
+        sqlQuery += ` GROUP BY RoomID`;
+
+        const result = await query(sqlQuery, params);
+        console.log('result', result);
+        return result;
+    },
 };
 module.exports = User;

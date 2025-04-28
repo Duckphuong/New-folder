@@ -157,6 +157,10 @@ const postStatusService = async (ticketId, action, daytime) => {
 const updateUserService = async (id, data) => {
     return await User.updateUser(id, data);
 };
+
+const getDurationService = async (startDate, endDate,roomID) => {
+    return await User.getDuration(startDate, endDate,roomID);
+};
 module.exports = {
     createUserService,
     loginService,
@@ -174,4 +178,5 @@ module.exports = {
     getViolateAllService,
     postStatusService,
     updateUserService,
+    getDurationService,
 };

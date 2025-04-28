@@ -15,6 +15,7 @@ const {
     getViolateAllService,
     postStatusService,
     updateUserService,
+    getDurationService,
 } = require('../services/userService');
 
 const createUser = async (req, res) => {
@@ -160,6 +161,18 @@ const updateUser = async (req, res) => {
     }
 };
 
+const getDuration = async (req, res) => {
+    const { startDate, endDate, roomId } = req.body.params;
+    console.log(req.body.params, startDate, endDate, roomId);
+    try {
+        const data = await getDurationService(startDate, endDate, roomId);
+        res.json({ success: true, data });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
 module.exports = {
     createUser,
     handleLogin,
@@ -178,4 +191,5 @@ module.exports = {
     getViolateAll,
     postCancel,
     updateUser,
+    getDuration,
 };

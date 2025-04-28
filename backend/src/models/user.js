@@ -240,6 +240,41 @@ const User = {
         return res;
     },
 
+    updateRoom: async (id, data) => {
+        const roomType = data.RoomType;
+
+        if (!roomType) {
+            throw new Error('Phòng không tồn tại!');
+        }
+
+        let updateQuery;
+
+        if (roomType === 'Phòng học nhóm') {
+            updateQuery = `
+                UPDATE PHONG_HOC_NHOM
+                SET RoomName = '${data.RoomName}', RoomCapacity = '${data.RoomCapacity}'
+                WHERE RoomID = '${id}'
+            `;
+        } else if (roomType === 'Phòng thuyết trình') {
+            updateQuery = `
+                UPDATE PHONG_THUYET_TRINH
+                SET RoomName = '${data.RoomName}', RoomCapacity = '${data.RoomCapacity}'
+                WHERE RoomID = '${id}'
+            `;
+        } else if (roomType === 'Phòng học cá nhân') {
+            updateQuery = `
+                UPDATE PHONG_HOC_CA_NHAN
+                SET RoomName = '${data.RoomName}', RoomCapacity = '${data.RoomCapacity}'
+                WHERE RoomID = '${id}'
+            `;
+        } else {
+            throw new Error('Loại phòng không hợp lệ!');
+        }
+
+        const res = await query(updateQuery);
+        return res;
+    },
+
     getDuration: async (startDate, endDate, roomId) => {
         let sqlQuery = `
             SELECT RoomID, SUM(Duration) AS totalDuration

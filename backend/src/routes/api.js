@@ -9,6 +9,7 @@ const {
     createMess,
     getBlog,
     getAllRooms,
+    updateRooms,
     getRoom,
     getBookedSlots,
     getHistory,
@@ -46,7 +47,9 @@ routerAPI.delete('/user/:id', handleDeleteUser);
 routerAPI.post('/user/:id', updateUser);
 
 routerAPI.get('/rooms', getAllRooms);
+
 routerAPI.get('/roomall', getAllRooms);
+routerAPI.post('/roomall/:roomID', updateRooms);
 
 routerAPI.get('/room/:roomID', () => console.log(12213));
 

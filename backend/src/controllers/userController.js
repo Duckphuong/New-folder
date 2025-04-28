@@ -16,6 +16,7 @@ const {
     postStatusService,
     updateUserService,
     getDurationService,
+    updateRoomService,
 } = require('../services/userService');
 
 const createUser = async (req, res) => {
@@ -161,6 +162,18 @@ const updateUser = async (req, res) => {
     }
 };
 
+const updateRooms = async (req, res) => {
+    const data = req.body;
+    const id = req.body.RoomID;
+    console.log(id, data);
+    try {
+        const result = await updateRoomService(id, data);
+        res.json({ success: true, result });
+    } catch (error) {
+        res.status(400).json({ success: false, message: error.message });
+    }
+};
+
 const getDuration = async (req, res) => {
     const { startDate, endDate, roomId } = req.body.params;
     console.log(req.body.params, startDate, endDate, roomId);
@@ -191,5 +204,6 @@ module.exports = {
     getViolateAll,
     postCancel,
     updateUser,
+    updateRooms,
     getDuration,
 };

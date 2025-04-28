@@ -101,6 +101,7 @@ const RoomAll = () => {
 
     const handleUpdate = async () => {
         try {
+            console.log('formData', formData);
             await axios.post(`/v1/api/roomall/${formData.RoomID}`, formData);
             notification.success({
                 message: 'Cập nhật thành công',
@@ -271,19 +272,101 @@ const RoomAll = () => {
                 {selectedRow && (
                     <div className="space-y-2">
                         <div>
-                            <b>ID phòng:</b> {formData.RoomID}
+                            <b>ID phòng:</b>
+                            {isEditing ? (
+                                <Input
+                                    value={formData.RoomID}
+                                    onChange={(e) =>
+                                        setFormData({
+                                            ...formData,
+                                            RoomID: e.target.value,
+                                        })
+                                    }
+                                />
+                            ) : (
+                                <p>{formData.RoomID}</p>
+                            )}
+                        </div>
+
+                        <div>
+                            <b>Tên phòng:</b>
+                            {isEditing ? (
+                                <Input
+                                    value={formData.RoomName}
+                                    onChange={(e) =>
+                                        setFormData({
+                                            ...formData,
+                                            RoomName: e.target.value,
+                                        })
+                                    }
+                                />
+                            ) : (
+                                <p>{formData.RoomName}</p>
+                            )}
                         </div>
                         <div>
-                            <b>Tên phòng:</b> {formData.RoomName}
+                            <b>Thời lượng:</b>
+                            {isEditing ? (
+                                <Input
+                                    value={formData.TimeLimit}
+                                    onChange={(e) =>
+                                        setFormData({
+                                            ...formData,
+                                            TimeLimit: e.target.value,
+                                        })
+                                    }
+                                />
+                            ) : (
+                                <p>{formData.TimeLimit}</p>
+                            )}
+                        </div>
+                        {/* <div>
+                             <b>Thiết bị:</b>{' '}
+                             {isEditing ? (
+                                 <Input
+                                     value={formData.HasProjector}
+                                     onChange={(e) =>
+                                         setFormData({
+                                             ...formData,
+                                             HasProjector: e.target.value,
+                                         })
+                                     }
+                                 />
+                             ) : (
+                                 <p>{formData.HasProjector}</p>
+                             )}
+                         </div> */}
+                        <div>
+                            <b>Sức chứa:</b>
+                            {isEditing ? (
+                                <Input
+                                    value={formData.RoomCapacity}
+                                    onChange={(e) =>
+                                        setFormData({
+                                            ...formData,
+                                            RoomCapacity: e.target.value,
+                                        })
+                                    }
+                                />
+                            ) : (
+                                <p>{formData.RoomCapacity}</p>
+                            )}
                         </div>
                         <div>
-                            <b>Thời lượng:</b> {formData.TimeLimit}
-                        </div>
-                        <div>
-                            <b>Sức chứa:</b> {formData.RoomCapacity ?? 1}
-                        </div>
-                        <div>
-                            <b>CCCD quản lí:</b> {formData.CCCD}
+                            <b>CCCD quản lí:</b>
+                            {isEditing ? (
+                                <Input
+                                    value={formData.CCCD}
+                                    onChange={(e) =>
+                                        setFormData({
+                                            ...formData,
+                                            TimeCCCDLimit: e.target.value,
+                                        })
+                                    }
+                                />
+                            ) : (
+                                <p>{formData.CCCD}</p>
+                            )}
                         </div>
                     </div>
                 )}

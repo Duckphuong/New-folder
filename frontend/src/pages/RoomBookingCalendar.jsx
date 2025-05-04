@@ -23,12 +23,6 @@ const days = Array.from({ length: 5 }, (_, i) => {
 });
 const todayStr = today.format('YYYY-MM-DD');
 
-const maxSelectionMap = {
-    personal: 5,
-    presentation: 2,
-    group: 3,
-};
-
 const postBookingApi = async (RoomID, bookingData) => {
     const URL_API = `/v1/api/booking/${RoomID}`;
     try {
@@ -48,15 +42,6 @@ const RoomBookingCalendar = () => {
     const [selectedSlots, setSelectedSlots] = useState([]);
     const [socketQuantity, setSocketQuantity] = useState('1');
     const [loading, setLoading] = useState(false);
-
-    const getRoomTypeKey = (type) => {
-        const map = {
-            'Phòng học cá nhân': 'personal',
-            'Phòng thuyết trình': 'presentation',
-            'Phòng học nhóm': 'group',
-        };
-        return map[type] || 'group';
-    };
 
     const [bookedSlots, setBookedSlots] = useState([]);
 
@@ -101,9 +86,18 @@ const RoomBookingCalendar = () => {
         );
     };
 
-    console.log('bookedSlots', bookedSlots);
+    // console.log('bookedSlots', bookedSlots);
 
     const hourToInt = (h) => parseInt(h.split(':')[0], 10);
+
+    const isPastSlot = (dayLabel, hour) => {
+        const slotDate = days.find((d) => d.label === dayLabel)?.date;
+        if (!slotDate) return false;
+
+        const now = dayjs();
+        const slotDateTime = dayjs(`${slotDate} ${hour}`);
+        return slotDate === todayStr && slotDateTime.isBefore(now);
+    };
 
     const handleSelect = (day, hour) => {
         const isSameDay =
@@ -130,10 +124,7 @@ const RoomBookingCalendar = () => {
             (h, i, arr) => i === 0 || h - arr[i - 1] === 1
         );
 
-        if (
-            newSlots.length <= maxSelectionMap[getRoomTypeKey(room.RoomType)] &&
-            isContinuous
-        ) {
+        if (newSlots.length <= room.TimeLimit / 60 && isContinuous) {
             setSelectedSlots(newSlots);
         }
     };
@@ -223,23 +214,27 @@ const RoomBookingCalendar = () => {
                                     (s) =>
                                         s.day === day.label && s.hour === hour
                                 );
-
                                 const booked = isBooked(day.label, hour);
+                                const isPast = isPastSlot(day.label, hour);
 
                                 return (
                                     <div
                                         key={`${day.label}-${hour}`}
                                         onClick={() =>
                                             !booked &&
+                                            !isPast &&
                                             handleSelect(day.label, hour)
                                         }
                                         className={clsx(
                                             'w-20 h-10 m-0.5 rounded cursor-pointer',
                                             booked &&
                                                 'bg-gray-500 cursor-not-allowed',
+                                            isPast &&
+                                                'bg-gray-500 cursor-not-allowed opacity-60',
                                             isSelected && 'bg-blue-500',
                                             !booked &&
                                                 !isSelected &&
+                                                !isPast &&
                                                 'bg-gray-200 hover:bg-gray-300'
                                         )}
                                     />
@@ -256,6 +251,10 @@ const RoomBookingCalendar = () => {
                             {room.RoomType}
                         </p>
                         <p>👥 Sức chứa: {room.RoomCapacity || '1'} sinh viên</p>
+                        <p>
+                            👥 Thời gian tối đa: {room.TimeLimit / 60 || '5'}{' '}
+                            tiếng
+                        </p>
                         <p>
                             💻{' '}
                             {room.HasProjector
@@ -338,8 +337,7 @@ const RoomBookingCalendar = () => {
                             </li>
                             <li>
                                 Mã QR để check-in vào phòng sẽ được gửi vào hộp
-                                thông báo (bấm vào logo cá nhân trên thanh công
-                                cụ để xem).
+                                thông báo.
                             </li>
                         </ul>
                     </li>

@@ -56,7 +56,7 @@ function UserPage() {
     };
 
     const handleDelete = async () => {
-        if (authData.user.role !== 'admin') {
+        if (authData.user.role !== 'admin' && selectedRow.role === 'admin') {
             notification.error({
                 message: 'Không có quyền',
                 description: 'Bạn không có quyền xóa người dùng!',
@@ -71,7 +71,17 @@ function UserPage() {
             cancelText: 'Hủy',
             onOk: async () => {
                 try {
-                    await axios.delete(`/v1/api/user/${selectedRow.id}`);
+                    const res = await axios.delete(
+                        `/v1/api/user/${selectedRow.id}`
+                    );
+                    console.log(res);
+                    if (res.message === 'Cannot delete an admin user') {
+                        notification.error({
+                            message: 'Không thể xóa người dùng',
+                            description: res.message,
+                        });
+                        return;
+                    }
                     setDataSource((prev) =>
                         prev.filter((u) => u.id !== selectedRow.id)
                     );

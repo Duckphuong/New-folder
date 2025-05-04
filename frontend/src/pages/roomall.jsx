@@ -191,10 +191,10 @@ const RoomAll = () => {
             sorter: (a, b) => a.TimeLimit.localeCompare(b.TimeLimit),
         },
         {
-            title: 'CCCD',
-            dataIndex: 'CCCD',
-            key: 'CCCD',
-            sorter: (a, b) => a.CCCD.localeCompare(b.CCCD),
+            title: 'QuanLyCCCD',
+            dataIndex: 'QuanLyCCCD',
+            key: 'QuanLyCCCD',
+            sorter: (a, b) => a.QuanLyCCCD.localeCompare(b.QuanLyCCCD),
         },
         {
             title: 'Sức chứa',
@@ -356,7 +356,7 @@ const RoomAll = () => {
                             <b>CCCD quản lí:</b>
                             {isEditing ? (
                                 <Input
-                                    value={formData.CCCD}
+                                    value={formData.QuanLyCCCD}
                                     onChange={(e) =>
                                         setFormData({
                                             ...formData,
@@ -365,7 +365,7 @@ const RoomAll = () => {
                                     }
                                 />
                             ) : (
-                                <p>{formData.CCCD}</p>
+                                <p>{formData.QuanLyCCCD}</p>
                             )}
                         </div>
                     </div>

@@ -27,9 +27,9 @@ const History = () => {
     useEffect(() => {
         const fetchDetail = async () => {
             const res = await getHistoryApi(parsed.user.CCCD);
-            if (res.redirect) {
-                navigate(res.redirect);
-            }
+            // if (res.redirect) {
+            //     navigate(res.redirect);
+            // }
             if (!res?.message) {
                 const sorted = res.sort((a, b) => {
                     const dateA = new Date(
@@ -116,8 +116,6 @@ const History = () => {
                                     ? {
                                           ...item,
                                           TicketStatus: 'CANCEL',
-                                          Actual_Return_Time:
-                                              new Date().toISOString(),
                                       }
                                     : item
                             )

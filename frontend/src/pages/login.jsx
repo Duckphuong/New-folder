@@ -13,49 +13,54 @@ const LoginPage = () => {
     const { setAuth } = useContext(AuthContext);
     const onFinish = async (values) => {
         const { email, password } = values;
-        const res = await loginApi(email, password);
-        // eslint-disable-next-line no-debugger
-        // debugger;
-        console.log('check useruser', res);
-
-        if (res && res.EC === 0) {
-            localStorage.setItem(
-                'authData',
-                JSON.stringify({
-                    access_token: res.access_token,
+        try {
+            const res = await loginApi(email, password);
+            if (res && res.EC === 0) {
+                localStorage.setItem(
+                    'authData',
+                    JSON.stringify({
+                        access_token: res.access_token,
+                        user: {
+                            email: res.user.email,
+                            name: res.user.name,
+                            role: res.user.role,
+                            CCCD: res.user.CCCD,
+                            id: res.user.id,
+                            SoLanPhat: res.user.SoLanPhat,
+                        },
+                    })
+                );
+                notification.success({
+                    message: 'LOGIN USER',
+                    description: 'success',
+                });
+                setAuth({
+                    isAuthenticated: true,
                     user: {
-                        email: res.user.email,
-                        name: res.user.name,
-                        role: res.user.role,
-                        CCCD: res.user.CCCD,
-                        id: res.user.id,
-                        SoLanPhat: res.user.SoLanPhat,
+                        email: res?.user?.email ?? '',
+                        name: res?.user?.name ?? '',
+                        role: res?.user?.role ?? '',
+                        CCCD: res?.user?.CCCD ?? '',
+                        id: res?.user?.id ?? '',
+                        SoLanPhat: res?.user?.SoLanPhat ?? '',
                     },
-                })
-            );
-            notification.success({
-                message: 'LOGIN USER',
-                description: 'success',
-            });
-            setAuth({
-                isAuthenticated: true,
-                user: {
-                    email: res?.user?.email ?? '',
-                    name: res?.user?.name ?? '',
-                    role: res?.user?.role ?? '',
-                    CCCD: res?.user?.CCCD ?? '',
-                    id: res?.user?.id ?? '',
-                    SoLanPhat: res?.user?.SoLanPhat ?? '',
-                },
-            });
-            naviGate('/');
-        } else {
+                });
+                naviGate('/');
+            } else {
+                notification.error({
+                    message: 'LOGIN USER HAS ERROR',
+                    description: res?.EM ?? 'error',
+                });
+            }
+            console.log('Success:', res);
+        } catch (error) {
             notification.error({
                 message: 'LOGIN USER HAS ERROR',
-                description: res?.EM ?? 'error',
+                description: error?.response?.data?.EM ?? 'error',
             });
         }
-        console.log('Success:', res);
+        // eslint-disable-next-line no-debugger
+        // debugger;
     };
 
     return (

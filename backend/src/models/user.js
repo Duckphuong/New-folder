@@ -13,7 +13,10 @@ const query = (sqlQuery, params = []) => {
 
 const User = {
     findOneByEmail: async (email) => {
-        const result = await query(`EXEC GetUsersWithPenalty @Email = ?`, [
+        // const result = await query(`EXEC GetUsersWithPenalty @Email = ?`, [
+        //     email,
+        // ]);
+        const result = await query(`SELECT * FROM Users WHERE Email = ?`, [
             email,
         ]);
         return result[0] || null;
@@ -35,11 +38,13 @@ const User = {
     },
 
     findAll: async () => {
-        return await query(`EXEC GetUsersWithPenalty`);
+        // return await query(`EXEC GetUsersWithPenalty`);
+        return await query(`SELECT * FROM Users`);
     },
 
     findOne: async (userId) => {
-        return await query(`EXEC GetUsersWithPenalty @UserId = ?`, [userId]);
+        // return await query(`EXEC GetUsersWithPenalty @UserId = ?`, [userId]);
+        return await query(`SELECT * FROM Users where id = ?`, [userId]);
     },
 
     findById: async (id) => {
@@ -53,22 +58,20 @@ const User = {
 
     getAllRooms: async () => {
         return await query(`
-            EXEC sp_ThongTinChiTietPhongHoc;
+            EXEC sp_ThongTinChiTietPhongHoc10;
         `);
     },
 
     getRoom: async (roomID) => {
         console.log('roomID', roomID);
         return await query(`
-            EXEC sp_ThongTinChiTietPhongHoc @ROOMID = '${roomID}';
+            EXEC sp_ThongTinChiTietPhongHoc10 @ROOMID = '${roomID}';
         `);
     },
 
     postBooking: async (bookingData) => {
         const {
             RoomID,
-            DeviceID,
-            Quantity,
             Borrowed_Date,
             Borrowed_Time,
             Duration,
@@ -78,10 +81,8 @@ const User = {
         } = bookingData;
 
         const sqlQuery = `
-            EXEC INSERT_TICKET_TONG_QUAT 
+            EXEC INSERT_TICKET_TONG_QUAT10
                 @RoomID = ?, 
-                @DeviceID = ?, 
-                @Quantity = ?, 
                 @Borrowed_Date = ?, 
                 @Borrowed_Time = ?, 
                 @Duration = ?, 
@@ -92,8 +93,6 @@ const User = {
 
         const params = [
             RoomID || null,
-            DeviceID || null,
-            Quantity,
             Borrowed_Date,
             Borrowed_Time,
             Duration,
@@ -214,17 +213,16 @@ const User = {
         }
     },
 
-    postStatusService: async (ticketId, action, daytime) => {
+    postStatusService: async (ticketId, action) => {
         const validActions = ['CANCEL', 'PAID', 'LATE'];
         if (!validActions.includes(action)) {
             return res
                 .status(400)
                 .json({ success: false, message: 'Hành động không hợp lệ' });
         }
-        console.log(daytime);
         const data = await query(`
                UPDATE PHIEU_MUON
-               SET TicketStatus = '${action}', Actual_Return_Time = '${daytime}'
+               SET TicketStatus = '${action}'
                WHERE TicketID = '${ticketId}'
                `);
 

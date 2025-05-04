@@ -141,10 +141,10 @@ const getViolateAll = async (req, res) => {
 
 const postCancel = async (req, res) => {
     const { TicketID } = req.params;
-    const { action, daytime } = req.body;
-
+    const { action } = req.body;
+    console.log(TicketID, action);
     try {
-        const result = await postStatusService(TicketID, action, daytime);
+        const result = await postStatusService(TicketID, action);
         res.json({ success: true, result });
     } catch (error) {
         res.status(400).json({ success: false, message: error.message });

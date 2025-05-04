@@ -161,6 +161,10 @@ const RoomBookingCalendar = () => {
             const storedAuthData = localStorage.getItem('authData');
             const parsed = JSON.parse(storedAuthData);
             const cccd = parsed.user.CCCD || '333333333333';
+            if (parsed.user.role === 'admin') {
+                message.error('Tài khoản quản trị viên không thể đặt phòng!');
+                return;
+            }
             const selectedDay = days.find(
                 (d) => d.label === selectedSlots[0].day
             );
@@ -174,8 +178,6 @@ const RoomBookingCalendar = () => {
 
             const bookingData = {
                 RoomID: room.RoomID,
-                DeviceID: socketQuantity > 0 ? 'DEVICE0005' : null,
-                Quantity: socketQuantity > 0 ? parseInt(socketQuantity) : null,
                 Borrowed_Date: borrowedDate,
                 Borrowed_Time: borrowedTime,
                 Duration: duration,
@@ -280,7 +282,7 @@ const RoomBookingCalendar = () => {
                             </div>
                         </div>
                     </Card>
-                    <div className="mt-4 flex justify-between items-center">
+                    {/* <div className="mt-4 flex justify-between items-center">
                         <div className="py-3">Mượn ổ cắm</div>
                         <Select
                             value={socketQuantity}
@@ -293,7 +295,7 @@ const RoomBookingCalendar = () => {
                                 { value: '3', label: '3' },
                             ]}
                         />
-                    </div>
+                    </div> */}
                     <Button
                         onClick={handleConfirmBooking}
                         type="primary"

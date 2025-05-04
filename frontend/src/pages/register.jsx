@@ -7,6 +7,7 @@ import {
     notification,
     Row,
     DatePicker,
+    message,
 } from 'antd';
 import { createUserApi } from '../util/api';
 import { Link, useNavigate } from 'react-router-dom';
@@ -41,13 +42,17 @@ const RegisterPage = () => {
                     description: 'success',
                 });
                 naviGate('/login');
-                return;
+            } else {
+                notification.error({
+                    message: 'CREATE USER FAILED',
+                    description: 'User exists or error',
+                });
             }
         } catch (error) {
             console.error('API Error:', error);
             notification.error({
                 message: 'CREATE USER HAS ERROR',
-                description: error.response?.data?.EM ?? 'error',
+                description: 'CREATE USER HAS ERROR',
             });
         }
     };

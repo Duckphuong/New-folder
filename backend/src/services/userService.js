@@ -97,10 +97,10 @@ const deleteUser = async (req, res) => {
             return res
                 .status(403)
                 .json({ message: 'Cannot delete an admin user' });
+        } else {
+            await User.deleteById(req.params.id);
+            res.json({ message: 'Deleted successfully' });
         }
-
-        await User.deleteById(req.params.id);
-        res.json({ message: 'Deleted successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Error deleting user', error });
     }
@@ -143,7 +143,7 @@ const getViolateAllService = async () => {
     return await User.getViolateAll();
 };
 
-const postStatusService = async (ticketId, action, daytime) => {
+const postStatusService = async (ticketId, action) => {
     const validActions = ['CANCEL', 'PAID', 'LATE'];
 
     if (!validActions.includes(action)) {
@@ -151,7 +151,7 @@ const postStatusService = async (ticketId, action, daytime) => {
     }
     console.log(ticketId, action);
 
-    return await User.postStatusService(ticketId, action, daytime);
+    return await User.postStatusService(ticketId, action);
 };
 
 const updateUserService = async (id, data) => {

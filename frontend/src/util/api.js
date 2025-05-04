@@ -103,11 +103,10 @@ function cancelTicketApi(ticketId) {
     });
 }
 
-function returnTicketApi(ticketId, action, daytime) {
+function returnTicketApi(ticketId, action) {
     try {
         const response = axios.post(`/v1/api/history/${ticketId}`, {
             action,
-            daytime,
         });
         return response;
     } catch (error) {

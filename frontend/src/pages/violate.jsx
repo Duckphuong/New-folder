@@ -10,7 +10,7 @@ dayjs.extend(utc);
 const Violate = () => {
     const navigate = useNavigate();
     const [historys, setHistory] = useState([]);
-    const [selectedRow, setSelectedRow] = useState(null); 
+    const [selectedRow, setSelectedRow] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
     useEffect(() => {
         const fetchDetail = async () => {

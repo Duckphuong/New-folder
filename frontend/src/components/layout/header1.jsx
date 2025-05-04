@@ -46,11 +46,11 @@ const Header = () => {
                       key: 'historyall',
                       icon: <HistoryOutlined />,
                   },
-                  {
-                      label: <Link to={'/violate'}>Lịch sử vi phạm</Link>,
-                      key: 'violate',
-                      icon: <HistoryOutlined />,
-                  },
+                //   {
+                //       label: <Link to={'/violate'}>Lịch sử vi phạm</Link>,
+                //       key: 'violate',
+                //       icon: <HistoryOutlined />,
+                //   },
                   {
                       label: `Welcome ${auth?.user?.name ?? ''}`,
                       key: 'SubMenu',

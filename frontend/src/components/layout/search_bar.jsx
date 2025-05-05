@@ -59,7 +59,7 @@ const SearchBar = ({ onSearch }) => {
                         <UserOutlined /> Loại phòng
                     </div>
                     <Select
-                        defaultValue="personal"
+                        defaultValue="Phòng học cá nhân"
                         value={roomType}
                         onChange={(value) => setRoomType(value)}
                         style={{ width: 120 }}

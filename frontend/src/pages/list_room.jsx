@@ -27,11 +27,13 @@ const ListRoom = ({ filters }) => {
         fetchUser();
     }, []);
 
-    const filteredRooms = rooms.filter((room) => {
-        if (filters.roomType && room.RoomType !== filters.roomType)
-            return false;
-        return true;
-    });
+    const filteredRooms = Array.isArray(rooms)
+        ? rooms.filter((room) => {
+              if (filters.roomType && room.RoomType !== filters.roomType)
+                  return false;
+              return true;
+          })
+        : [];
 
     return (
         <div className="max-w-5xl mx-auto p-5">

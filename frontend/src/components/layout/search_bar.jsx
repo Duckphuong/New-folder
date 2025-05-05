@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Select, DatePicker, TimePicker, Button, Space } from 'antd';
 import {
     EnvironmentOutlined,
@@ -10,7 +10,11 @@ import {
 
 const { Option } = Select;
 
-const SearchBar = () => {
+const SearchBar = ({ onSearch }) => {
+    const [roomType, setRoomType] = useState('personal');
+    const handleSearch = () => {
+        onSearch({ roomType });
+    };
     return (
         <div className="p-4 bg-white rounded shadow-md flex flex-wrap gap-4 items-center justify-between">
             <Space size="large" wrap>
@@ -54,15 +58,24 @@ const SearchBar = () => {
                     <div className="text-gray-600 text-sm mb-1">
                         <UserOutlined /> Loại phòng
                     </div>
-                    <Select defaultValue="personal" style={{ width: 120 }}>
-                        <Option value="personal">Cá nhân</Option>
-                        <Option value="group">Nhóm</Option>
-                        <Option value="group">Thuyết trình</Option>
+                    <Select
+                        defaultValue="personal"
+                        value={roomType}
+                        onChange={(value) => setRoomType(value)}
+                        style={{ width: 120 }}
+                    >
+                        <Option value="Phòng học cá nhân">Cá nhân</Option>
+                        <Option value="Phòng học nhóm">Nhóm</Option>
+                        <Option value="Phòng thuyết trình">Thuyết trình</Option>
                     </Select>
                 </div>
 
                 {/* Nút tìm kiếm */}
-                <Button type="primary" icon={<SearchOutlined />}>
+                <Button
+                    type="primary"
+                    icon={<SearchOutlined />}
+                    onClick={handleSearch}
+                >
                     Tìm kiếm
                 </Button>
             </Space>

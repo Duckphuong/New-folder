@@ -9,7 +9,6 @@ import img1 from '../assets/slide/sanbong.jpeg';
 import { useEffect, useState } from 'react';
 import { cancelTicketApi, getHistoryApi, returnTicketApi } from '../util/api';
 import { notification, Modal } from 'antd';
-import { useNavigate } from 'react-router-dom';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import dayjs from 'dayjs';
@@ -19,7 +18,6 @@ dayjs.extend(timezone);
 const { confirm } = Modal;
 
 const History = () => {
-    const navigate = useNavigate();
     const [history, setHistory] = useState([]);
     const storedAuthData = localStorage.getItem('authData');
     const parsed = JSON.parse(storedAuthData);

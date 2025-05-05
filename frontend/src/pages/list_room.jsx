@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import img1 from '../assets/slide/sanbong.jpeg';
 import { getAllRoomsApi } from '../util/api';
 
-const ListRoom = () => {
+const ListRoom = ({ filters }) => {
     const navigate = useNavigate();
 
     const [rooms, setRooms] = useState([]);
@@ -22,21 +22,22 @@ const ListRoom = () => {
 
             if (!res?.message) {
                 setRooms(res);
-            } else {
-                //
-                // notification.error({
-                //     message: 'Unautherized',
-                //     description: res.message,
-                // });
             }
         };
         fetchUser();
     }, []);
+
+    const filteredRooms = rooms.filter((room) => {
+        if (filters.roomType && room.RoomType !== filters.roomType)
+            return false;
+        return true;
+    });
+
     return (
         <div className="max-w-5xl mx-auto p-5">
             <div className="font-bold text-3xl pb-10">Danh sách phòng học</div>
 
-            {rooms.map((room) => (
+            {filteredRooms.map((room) => (
                 <div
                     key={room.RoomID}
                     className="bg-white rounded border-[0.5px] border-[#f0f0f0] p-4 flex flex-col md:flex-row gap-4 items-center shadow-md mb-4"

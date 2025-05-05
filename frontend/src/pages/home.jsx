@@ -5,8 +5,14 @@ import img1 from '../assets/slide/sanbong.jpeg';
 import img2 from '../assets/slide/slbk.jpg';
 import img3 from '../assets/slide/slbktv.jpg';
 import ListRoom from './list_room';
+import { useState } from 'react';
 
 function HomePage() {
+    const [filters, setFilters] = useState({});
+
+    const handleSearch = (searchData) => {
+        setFilters(searchData);
+    };
     return (
         <div className="p-3 h-100vh bg-gray-50">
             <div className="max-w-5xl mx-auto">
@@ -21,7 +27,7 @@ function HomePage() {
             </div>
 
             <div className="flex justify-center items-center absolute top-[-80px] left-0 right-0 bottom-0">
-                <SearchBar />
+                <SearchBar onSearch={handleSearch} />
             </div>
 
             <div className=" text-gray-800 p-8 pt-20 ">
@@ -114,7 +120,7 @@ function HomePage() {
                     </ol>
                 </div>
             </div>
-            <ListRoom />
+            <ListRoom filters={filters} />
             <ScrollToTop />
         </div>
     );

@@ -49,10 +49,12 @@ const User = {
 
     findById: async (id) => {
         const result = await query(`SELECT * FROM Users WHERE id = ?`, [id]);
+        console.log('result', result);
         return result[0] || null;
     },
 
     deleteById: async (id) => {
+        console.log(id);
         return await query(`DELETE FROM Users WHERE id = ?`, [id]);
     },
 
@@ -114,7 +116,7 @@ const User = {
                 Expected_Return_Time
             FROM PHIEU_MUON 
             WHERE RoomID = '${roomID}'
-            AND TicketStatus NOT IN ('PAYED')
+            AND TicketStatus IN ('PENDING')
             ORDER BY Borrowed_Date, Borrowed_Time
         `);
             console.log('data>>>>>>>>>>>', data);
@@ -273,6 +275,40 @@ const User = {
         return res;
     },
 
+    addRoom: async (data) => {
+        const { RoomID, RoomName, RoomCapacity, TimeLimit, RoomType } = data;
+
+        if (!RoomType || !RoomID || !RoomName || !TimeLimit) {
+            throw new Error('Thiếu thông tin bắt buộc!');
+        }
+
+        let addQuery = '';
+
+        addQuery += `INSERT INTO PHONG_HOC (CCCD) VALUES ('079201791244');\n`;
+
+        if (RoomType === 'Phòng học nhóm') {
+            addQuery += `
+            INSERT INTO PHONG_HOC_NHOM (RoomID, RoomName, RoomCapacity, TimeLimit)
+            VALUES ('${RoomID}','${RoomName}', '${RoomCapacity}','${TimeLimit}');
+        `;
+        } else if (RoomType === 'Phòng thuyết trình') {
+            addQuery += `
+            INSERT INTO PHONG_THUYET_TRINH (RoomID, RoomName, RoomCapacity, TimeLimit)
+            VALUES ('${RoomID}','${RoomName}', '${RoomCapacity}','${TimeLimit}');
+        `;
+        } else if (RoomType === 'Phòng học cá nhân') {
+            addQuery += `
+            INSERT INTO PHONG_HOC_CA_NHAN (RoomID, RoomName, TimeLimit)
+            VALUES ('${RoomID}','${RoomName}', '${TimeLimit}');
+        `;
+        } else {
+            throw new Error('Loại phòng không hợp lệ!');
+        }
+
+        const res = await query(addQuery);
+        return res;
+    },
+
     deleteRoom: async (id) => {
         const deleteQuery = `DELETE FROM PHONG_HOC WHERE RoomID = '${id}'`;
         return await query(deleteQuery);
@@ -282,7 +318,7 @@ const User = {
         let sqlQuery = `
             SELECT RoomID, SUM(Duration) AS totalDuration
             FROM PHIEU_MUON
-            WHERE Borrowed_Date BETWEEN ? AND ?
+            WHERE Borrowed_Date BETWEEN ? AND ?  AND TicketStatus IN ('PAID', 'LATE')
         `;
         const params = [startDate, endDate];
         console.log('params', params);

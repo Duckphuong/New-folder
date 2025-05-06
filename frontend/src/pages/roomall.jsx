@@ -202,27 +202,63 @@ const RoomAll = () => {
             title: 'Loại phòng',
             dataIndex: 'RoomType',
             key: 'RoomType',
+            filters: [
+                { text: 'Phòng học cá nhân', value: 'Phòng học cá nhân' },
+                { text: 'Phòng thuyết trình', value: 'Phòng thuyết trình' },
+                { text: 'Phòng học nhóm', value: 'Phòng học nhóm' },
+            ],
+            onFilter: (value, record) => record.RoomType === value,
             sorter: (a, b) => a.RoomType.localeCompare(b.RoomType),
         },
+
         {
             title: 'Thời gian tối đa',
             dataIndex: 'TimeLimit',
             key: 'TimeLimit',
             render: (value) => `${value / 60} tiếng`,
-            sorter: (a, b) => a.TimeLimit.localeCompare(b.TimeLimit),
+            sorter: (a, b) => a.TimeLimit - b.TimeLimit,
+            filters: Array.from(
+                new Set(dataSource.map((item) => item.TimeLimit / 60))
+            ).map((hour) => ({
+                text: `${hour} tiếng`,
+                value: hour,
+            })),
+            onFilter: (value, record) => record.TimeLimit / 60 === value,
         },
+
         {
             title: 'QuanLyCCCD',
             dataIndex: 'QuanLyCCCD',
             key: 'QuanLyCCCD',
+            filters: Array.from(
+                new Set(dataSource.map((item) => item.QuanLyCCCD))
+            ).map((cccd) => ({
+                text: cccd === null ? 'Không có' : cccd,
+                value: cccd,
+            })),
+            onFilter: (value, record) => record.QuanLyCCCD === value,
             sorter: (a, b) => a.QuanLyCCCD.localeCompare(b.QuanLyCCCD),
         },
+
         {
             title: 'Sức chứa',
             dataIndex: 'RoomCapacity',
             key: 'RoomCapacity',
             render: (text) => (text === null ? 1 : text),
             sorter: (a, b) => (a.RoomCapacity ?? 1) - (b.RoomCapacity ?? 1),
+            filters: [
+                { text: 'Dưới 10 người', value: '10' },
+                { text: '10 - 20 người', value: '15' },
+                { text: 'Trên 20 người', value: '20' },
+            ],
+            onFilter: (value, record) => {
+                if (value === '10') return record.RoomCapacity < 10;
+                if (value === '15')
+                    return (
+                        record.RoomCapacity >= 10 && record.RoomCapacity <= 20
+                    );
+                if (value === '20') return record.RoomCapacity > 20;
+            },
         },
     ];
 
@@ -232,8 +268,8 @@ const RoomAll = () => {
 
             {/* New: nút tính tổng thời gian */}
             <Button
+                className="mb-4 mr-4"
                 type="primary"
-                className="mb-4"
                 onClick={() => setIsDurationModalVisible(true)}
             >
                 Tính tổng thời gian đặt phòng

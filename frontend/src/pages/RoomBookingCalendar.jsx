@@ -271,6 +271,7 @@ const RoomBookingCalendar = () => {
                                 <span className="inline-block w-4 h-4 bg-gray-200 rounded-sm mr-2" />{' '}
                                 Có thể đặt
                             </div>
+
                             <div>
                                 <span className="inline-block w-4 h-4 bg-gray-500 rounded-sm mr-2" />{' '}
                                 Không thể đặt

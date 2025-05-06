@@ -44,7 +44,6 @@ CREATE TABLE PHONG_HOC (
 	CONSTRAINT FK_Room_CCCD FOREIGN KEY (CCCD) REFERENCES NGUOI_QUAN_LY(CCCD)
     ON UPDATE CASCADE
     ON DELETE SET NULL
-
 );
 
 CREATE TABLE PHONG_HOC_NHOM (
@@ -251,20 +250,6 @@ BEGIN
        @Duration > 300 OR DATEADD(MINUTE, @Duration, @Borrowed_Time) > '18:00:00'
     BEGIN
         RAISERROR('Thời gian mượn không hợp lệ.', 16, 2);
-        RETURN;
-    END
-
-    -- Kiểm tra xung đột thời gian phòng (nếu có RoomID)
-    IF @RoomID IS NOT NULL AND EXISTS (
-        SELECT 1 FROM PHIEU_MUON P
-        WHERE P.RoomID = @RoomID AND P.Borrowed_Date = @Borrowed_Date
-        AND NOT (
-            DATEADD(MINUTE, P.Duration, P.Borrowed_Time) <= @Borrowed_Time OR
-            DATEADD(MINUTE, @Duration, @Borrowed_Time) <= P.Borrowed_Time
-        )
-    )
-    BEGIN
-        RAISERROR('Phòng không khả dụng vào thời gian này.', 16, 2);
         RETURN;
     END
 

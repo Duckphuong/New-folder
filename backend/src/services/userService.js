@@ -88,11 +88,12 @@ const getUserService = async (id) => {
 
 const deleteUser = async (req, res) => {
     try {
+        console.log('check dele', req.params.id);
         const user = await User.findById(req.params.id);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-
+        
         if (user.role === 'admin') {
             return res
                 .status(403)
@@ -101,6 +102,7 @@ const deleteUser = async (req, res) => {
             await User.deleteById(req.params.id);
             res.json({ message: 'Deleted successfully' });
         }
+        console.log('check dele2', req.params.id);
     } catch (error) {
         res.status(500).json({ message: 'Error deleting user', error });
     }

@@ -15,8 +15,10 @@ const {
     getViolateAllService,
     postStatusService,
     updateUserService,
+    addRoomService,
     getDurationService,
     updateRoomService,
+    deleteRoomService,
 } = require('../services/userService');
 
 const createUser = async (req, res) => {
@@ -165,13 +167,29 @@ const updateUser = async (req, res) => {
 const updateRooms = async (req, res) => {
     const data = req.body;
     const id = req.body.RoomID;
-    console.log(id, data);
     try {
         const result = await updateRoomService(id, data);
         res.json({ success: true, result });
     } catch (error) {
         res.status(400).json({ success: false, message: error.message });
     }
+};
+
+const addRooms = async (req, res) => {
+    const data = req.body;
+    try {
+        const result = await addRoomService(data);
+        res.json({ success: true, result });
+    } catch (error) {
+        res.status(400).json({ success: false, message: error.message });
+    }
+};
+
+const deleteRooms = async (req, res) => {
+    const id = req.params.roomID;
+    console.log(id);
+    const result = await deleteRoomService(id);
+    res.json({ success: true, result });
 };
 
 const getDuration = async (req, res) => {
@@ -197,6 +215,7 @@ module.exports = {
     getBlog,
     getAllRooms,
     getRoom,
+    deleteRooms,
     createBooking,
     getBookedSlots,
     getHistory,
@@ -205,5 +224,6 @@ module.exports = {
     postCancel,
     updateUser,
     updateRooms,
+    addRooms,
     getDuration,
 };

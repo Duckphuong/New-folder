@@ -11,7 +11,7 @@ import {
 const { Option } = Select;
 
 const SearchBar = ({ onSearch }) => {
-    const [roomType, setRoomType] = useState('personal');
+    const [roomType, setRoomType] = useState('');
     const handleSearch = () => {
         onSearch({ roomType });
     };

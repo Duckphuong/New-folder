@@ -29,6 +29,8 @@ const RoomAll = () => {
 
     // New: state cho tính tổng thời gian
     const [isDurationModalVisible, setIsDurationModalVisible] = useState(false);
+    const [isAddModalVisible, setIsAddModalVisible] = useState(false);
+
     const [durationRoomID, setDurationRoomID] = useState('');
     const [durationStartDate, setDurationStartDate] = useState('');
     const [durationEndDate, setDurationEndDate] = useState('');
@@ -60,6 +62,7 @@ const RoomAll = () => {
 
     const handleClose = () => {
         setIsModalVisible(false);
+        setIsAddModalVisible(false);
         setSelectedRow(null);
         setIsEditing(false);
     };
@@ -110,6 +113,23 @@ const RoomAll = () => {
                 prev.map((u) => (u.RoomID === formData.RoomID ? formData : u))
             );
             setIsEditing(false);
+        } catch (error) {
+            notification.error({
+                message: 'Cập nhật thất bại',
+            });
+        }
+    };
+
+    const handleAdd = async () => {
+        try {
+            console.log('formDataaddd', formData);
+            await axios.post(`/v1/api/roomall`, formData);
+            notification.success({
+                message: 'Cập nhật thành công',
+            });
+            setDataSource((prev) =>
+                prev.map((u) => (u.RoomID === formData.RoomID ? formData : u))
+            );
         } catch (error) {
             notification.error({
                 message: 'Cập nhật thất bại',
@@ -188,6 +208,7 @@ const RoomAll = () => {
             title: 'Thời gian tối đa',
             dataIndex: 'TimeLimit',
             key: 'TimeLimit',
+            render: (value) => `${value / 60} tiếng`,
             sorter: (a, b) => a.TimeLimit.localeCompare(b.TimeLimit),
         },
         {
@@ -216,6 +237,14 @@ const RoomAll = () => {
                 onClick={() => setIsDurationModalVisible(true)}
             >
                 Tính tổng thời gian đặt phòng
+            </Button>
+
+            <Button
+                type="primary"
+                className="mb-4"
+                onClick={() => setIsAddModalVisible(true)}
+            >
+                Thêm phòng
             </Button>
 
             <Table
@@ -273,19 +302,7 @@ const RoomAll = () => {
                     <div className="space-y-2">
                         <div>
                             <b>ID phòng:</b>
-                            {isEditing ? (
-                                <Input
-                                    value={formData.RoomID}
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            RoomID: e.target.value,
-                                        })
-                                    }
-                                />
-                            ) : (
-                                <p>{formData.RoomID}</p>
-                            )}
+                            <p>{formData.RoomID}</p>
                         </div>
 
                         <div>
@@ -307,17 +324,41 @@ const RoomAll = () => {
                         <div>
                             <b>Thời lượng:</b>
                             {isEditing ? (
-                                <Input
-                                    value={formData.TimeLimit}
-                                    onChange={(e) =>
+                                <Select
+                                    style={{ width: '100%' }}
+                                    value={`${formData.TimeLimit / 60} tiếng`}
+                                    onChange={(value) =>
                                         setFormData({
                                             ...formData,
-                                            TimeLimit: e.target.value,
+                                            TimeLimit: value,
                                         })
                                     }
+                                    options={[
+                                        {
+                                            label: '1 tiếng',
+                                            value: '60',
+                                        },
+                                        {
+                                            label: '2 tiếng',
+                                            value: '120',
+                                        },
+                                        {
+                                            label: '3 tiếng',
+                                            value: '180',
+                                        },
+                                        {
+                                            label: '4 tiếng',
+                                            value: '240',
+                                        },
+                                        {
+                                            label: '5 tiếng',
+                                            value: '300',
+                                        },
+                                    ]}
+                                    placeholder="Chọn loại phòng chi tiết"
                                 />
                             ) : (
-                                <p>{formData.TimeLimit}</p>
+                                <p>{formData.TimeLimit / 60} tiếng</p>
                             )}
                         </div>
                         {/* <div>
@@ -453,6 +494,139 @@ const RoomAll = () => {
                             className="mt-4"
                         />
                     )}
+                </div>
+            </Modal>
+
+            <Modal
+                title={'Thêm phòng'}
+                open={isAddModalVisible}
+                onCancel={handleClose}
+                centered
+                maskClosable={true}
+                footer={[
+                    <Button key="cancel" onClick={handleClose}>
+                        Đóng
+                    </Button>,
+                    <Button
+                        key="add"
+                        type="primary"
+                        onClick={() => {
+                            if (!isEditing) {
+                                setIsEditing(true);
+                            } else {
+                                handleAdd();
+                            }
+                        }}
+                    >
+                        Thêm
+                    </Button>,
+                ]}
+            >
+                <div className="space-y-2">
+                    <div>
+                        <b>ID phòng:</b>
+                        {
+                            <Input
+                                onChange={(e) =>
+                                    setFormData({
+                                        ...formData,
+                                        RoomID: e.target.value,
+                                    })
+                                }
+                            />
+                        }
+                    </div>
+
+                    <div>
+                        <b>Tên phòng:</b>
+                        <Input
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    RoomName: e.target.value,
+                                })
+                            }
+                        />
+                    </div>
+                    <div>
+                        <b>Loại phòng:</b>
+
+                        <Select
+                            style={{ width: '100%' }}
+                            value={formData.RoomType}
+                            onChange={(value) =>
+                                setFormData({
+                                    ...formData,
+                                    RoomType: value,
+                                })
+                            }
+                            options={[
+                                {
+                                    label: 'Phòng học cá nhân',
+                                    value: 'Phòng học cá nhân',
+                                },
+                                {
+                                    label: 'Phòng học nhóm',
+                                    value: 'Phòng học nhóm',
+                                },
+                                {
+                                    label: 'Phòng thuyết trình',
+                                    value: 'Phòng thuyết trình',
+                                },
+                            ]}
+                            placeholder="Chọn loại phòng chi tiết"
+                        />
+                    </div>
+                    <div>
+                        <b>Thời lượng:</b>
+
+                        <Select
+                            style={{ width: '100%' }}
+                            value={formData.TimeLimit}
+                            onChange={(value) =>
+                                setFormData({
+                                    ...formData,
+                                    TimeLimit: value,
+                                })
+                            }
+                            options={[
+                                {
+                                    label: '1 tiếng',
+                                    value: '60',
+                                },
+                                {
+                                    label: '2 tiếng',
+                                    value: '120',
+                                },
+                                {
+                                    label: '3 tiếng',
+                                    value: '180',
+                                },
+                                {
+                                    label: '4 tiếng',
+                                    value: '240',
+                                },
+                                {
+                                    label: '5 tiếng',
+                                    value: '300',
+                                },
+                            ]}
+                            placeholder="Chọn loại phòng chi tiết"
+                        />
+                    </div>
+
+                    <div>
+                        <b>Sức chứa:</b>
+                        <Input
+                            value={formData.RoomCapacity}
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    RoomCapacity: e.target.value,
+                                })
+                            }
+                        />
+                    </div>
                 </div>
             </Modal>
         </div>

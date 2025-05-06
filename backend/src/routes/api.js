@@ -11,6 +11,8 @@ const {
     getAllRooms,
     updateRooms,
     getRoom,
+    deleteRooms,
+    addRooms,
     getBookedSlots,
     getHistory,
     getHistoryAll,
@@ -50,12 +52,12 @@ routerAPI.get('/rooms', getAllRooms);
 
 routerAPI.get('/roomall', getAllRooms);
 routerAPI.post('/roomall/:roomID', updateRooms);
+routerAPI.delete('/roomall/:roomID', deleteRooms);
+routerAPI.post('/roomall', addRooms);
 
 routerAPI.get('/room/:roomID', () => console.log(12213));
 
 routerAPI.post('/booking/:roomID', async (req, res) => {
-    console.log('req', req.body);
-    console.log('req.params', req.params);
     try {
         const bookingData = req.body;
         const data = await postBookingService(bookingData);

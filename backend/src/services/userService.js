@@ -162,6 +162,14 @@ const updateRoomService = async (id, data) => {
     return await User.updateRoom(id, data);
 };
 
+const addRoomService = async (data) => {
+    return await User.addRoom(data);
+};
+
+const deleteRoomService = async (id) => {
+    return await User.deleteRoom(id);
+};
+
 const getDurationService = async (startDate, endDate, roomID) => {
     return await User.getDuration(startDate, endDate, roomID);
 };
@@ -182,6 +190,8 @@ module.exports = {
     getViolateAllService,
     postStatusService,
     updateUserService,
+    addRoomService,
     getDurationService,
     updateRoomService,
+    deleteRoomService,
 };

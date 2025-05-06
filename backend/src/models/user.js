@@ -250,13 +250,13 @@ const User = {
         if (roomType === 'Phòng học nhóm') {
             updateQuery = `
                 UPDATE PHONG_HOC_NHOM
-                SET RoomName = '${data.RoomName}', RoomCapacity = '${data.RoomCapacity}'
+                SET RoomName = '${data.RoomName}', RoomCapacity = '${data.RoomCapacity}', TimeLimit = '${data.TimeLimit}'
                 WHERE RoomID = '${id}'
             `;
         } else if (roomType === 'Phòng thuyết trình') {
             updateQuery = `
                 UPDATE PHONG_THUYET_TRINH
-                SET RoomName = '${data.RoomName}', RoomCapacity = '${data.RoomCapacity}'
+                SET RoomName = '${data.RoomName}', RoomCapacity = '${data.RoomCapacity}', TimeLimit = '${data.TimeLimit}'
                 WHERE RoomID = '${id}'
             `;
         } else if (roomType === 'Phòng học cá nhân') {
@@ -271,6 +271,11 @@ const User = {
 
         const res = await query(updateQuery);
         return res;
+    },
+
+    deleteRoom: async (id) => {
+        const deleteQuery = `DELETE FROM PHONG_HOC WHERE RoomID = '${id}'`;
+        return await query(deleteQuery);
     },
 
     getDuration: async (startDate, endDate, roomId) => {
